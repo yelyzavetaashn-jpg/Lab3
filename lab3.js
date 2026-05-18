@@ -115,3 +115,17 @@ function wrapped(...params) {
 
         return value
     }
+ wrapped.reset = () => {
+        storage.clear()
+    }
+
+    wrapped.size = () => {
+        return storage.size
+    }
+
+    wrapped.entries = () => {
+        return storage
+    }
+
+    return wrapped
+}
