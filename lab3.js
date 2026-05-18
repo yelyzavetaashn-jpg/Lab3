@@ -17,3 +17,10 @@ function createMemo(fn, config = {}) {
 
         return Date.now() > item.expires
     }
+const clearOld = () => {
+        for (const [cacheKey, cacheValue] of storage) {
+            if (outdated(cacheValue)) {
+                storage.delete(cacheKey)
+            }
+        }
+    }
