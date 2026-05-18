@@ -129,3 +129,20 @@ function wrapped(...params) {
 
     return wrapped
 }
+function heavyMultiply(a, b) {
+    console.log("processing...")
+    return a * b
+}
+
+const cachedMultiply = createMemo(heavyMultiply, {
+    limit: 2,
+    strategy: "LRU",
+    expireTime: 10000
+})
+
+console.log(cachedMultiply(2, 5))
+console.log(cachedMultiply(2, 5))
+console.log(cachedMultiply(3, 4))
+console.log(cachedMultiply(6, 7))
+
+console.log("elements in cache:", cachedMultiply.size())
