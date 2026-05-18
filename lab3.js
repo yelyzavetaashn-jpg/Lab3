@@ -24,3 +24,60 @@ const clearOld = () => {
             }
         }
     }
+const freeSpace = () => {
+        if (storage.size < settings.limit) {
+            return
+        }
+
+        if (settings.strategy === "LRU") {
+            let selectedKey = null
+            let minAccess = Infinity
+
+            for (const [cacheKey, cacheValue] of storage) {
+                if (cacheValue.lastAccess < minAccess) {
+                    minAccess = cacheValue.lastAccess
+                    selectedKey = cacheKey
+                }
+            }
+
+            if (selectedKey !== null) {
+                storage.delete(selectedKey)
+            }
+        }
+
+        else if (settings.strategy === "LFU") {
+            let selectedKey = null
+            let minUsage = Infinity
+            let oldestAccess = Infinity
+
+            for (const [cacheKey, cacheValue] of storage) {
+                const betterCandidate =
+                    cacheValue.used < minUsage ||
+                    (
+                        cacheValue.used === minUsage &&
+                        cacheValue.lastAccess < oldestAccess
+                    )
+
+                if (betterCandidate) {
+                    minUsage = cacheValue.used
+                    oldestAccess = cacheValue.lastAccess
+                    selectedKey = cacheKey
+                }
+            }
+
+            if (selectedKey !== null) {
+                storage.delete(selectedKey)
+            }
+        }
+
+        else if (
+            settings.strategy === "CUSTOM" &&
+            typeof settings.onEvict === "function"
+        ) {
+            const customKey = settings.onEvict(storage)
+
+            if (customKey !== undefined) {
+                storage.delete(customKey)
+            }
+        }
+    }
