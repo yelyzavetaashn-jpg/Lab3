@@ -81,3 +81,37 @@ const freeSpace = () => {
             }
         }
     }
+function wrapped(...params) {
+        clearOld()
+
+        const cacheKey = buildKey(params)
+
+        if (storage.has(cacheKey)) {
+            const saved = storage.get(cacheKey)
+
+            if (!outdated(saved)) {
+                saved.used += 1
+                saved.lastAccess = Date.now()
+
+                return saved.result
+            }
+
+            storage.delete(cacheKey)
+        }
+
+        freeSpace()
+
+        const value = fn(...params)
+
+        storage.set(cacheKey, {
+            result: value,
+            used: 1,
+            created: Date.now(),
+            expires: settings.expireTime
+                ? Date.now() + settings.expireTime
+                : Infinity,
+            lastAccess: Date.now()
+        })
+
+        return value
+    }
